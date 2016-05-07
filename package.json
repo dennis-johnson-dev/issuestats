@@ -1,0 +1,32 @@
+{
+  "name": "issuestats",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/songawee/issuestats.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/songawee/issuestats/issues"
+  },
+  "homepage": "https://github.com/songawee/issuestats#readme",
+  "dependencies": {
+    "chart.js": "^2.0.2",
+    "hapi": "^13.3.0",
+    "lodash": "^4.11.1",
+    "moment": "^2.13.0",
+    "request": "^2.72.0"
+  },
+  "devDependencies": {
+    "nodemon": "^1.9.2"
+  }
+}
