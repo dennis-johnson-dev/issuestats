@@ -21,4 +21,12 @@ export default [{
   method: 'GET',
    path: '/{owner}/{repo}',
    handler: getAllIssues
+}, {
+  method: 'GET',
+  path: '/assets/{param*}',
+  handler: {
+    directory: {
+      path: 'build'
+    }
+  }
 }];

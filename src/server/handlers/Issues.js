@@ -18,7 +18,7 @@ export const getAllIssues = (req, reply) => {
     };
 
     Request(options, (err, res) => {
-      console.log(res.headers);
+      // console.log(res.headers);
       let lastLinks = [];
       if (res.headers.link) {
         const lastPage = getLastPageLink(res.headers.link);
@@ -71,7 +71,8 @@ export const getAllIssues = (req, reply) => {
           };
         }).toArray();
 
-        const data = JSON.stringify(finalResult);
+        const labels = JSON.stringify(dates.map((val, key) => key).toArray());
+        const data = JSON.stringify(dates.map((val, key) => val.size).toArray());
 
         reply(
           `<!DOCTYPE html>
@@ -79,57 +80,25 @@ export const getAllIssues = (req, reply) => {
           <head>
             <script src="https://npmcdn.com/moment@2.13.0/min/moment.min.js"></script>
             <script src="https://cdn.jsdelivr.net/lodash/4.11.2/lodash.core.min.js"></script>
-            <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.0.1/Chart.min.js"></script>
-
-            <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
-            <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js">
+            <link rel="stylesheet" href="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.css" />
+            <script src="//cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+            <script src="/assets/client.js"></script>
           </head>
           <body>
-            <canvas id="myChart" width="400" height="400"></canvas>
+            <div class="ct-chart"></div>
             <script>
-              var chartData = ${data}.map((datum) => {
-                return {
-                  x: new moment(datum.x).toDate(),
-                  y: datum.y
-                };
-              });
-              var ctx = document.getElementById("myChart");
-              var timeFormat = 'MM/DD/YYYY HH:mm';
-              var myChart = new Chart(ctx, {
-                type: 'line',
-                options: {
-                  responsive: true
+              new Chartist.Line('.ct-chart', {
+                labels: ${labels},
+                series: [
+                  ${data},
+                ]
+              }, {
+                fullWidth: true,
+                chartPadding: {
+                  right: 40
                 },
-                data: {
-                  datasets: [
-                    {
-                      fill: false,
-                      label: 'Open Issues',
-                      data: chartData
-                    },
-                  ]
-                },
-                options: {
-                  scales: {
-                    xAxes: [{
-          						type: "time",
-          						time: {
-          							format: timeFormat,
-          							tooltipFormat: 'll HH:mm'
-          						},
-          						scaleLabel: {
-          							display: true,
-          							labelString: 'Date'
-          						}
-          					}],
-          					yAxes: [{
-          						scaleLabel: {
-          							display: true,
-          							labelString: 'value'
-          						}
-          					}]
-                  }
-                }
+                height: 400,
+                width: '100%'
               });
             </script>
           </body>
