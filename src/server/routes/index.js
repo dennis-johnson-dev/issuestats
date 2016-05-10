@@ -1,4 +1,4 @@
-import { getAllIssues } from '../handlers/Issues';
+import { getAllIssues } from './handlers/Issues';
 
 export default [{
   method: 'GET',
