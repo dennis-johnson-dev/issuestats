@@ -1,5 +1,5 @@
-import inertPlugin from './InertPlugin';
+import InertPlugin from './InertPlugin';
 
 export default [
-  inertPlugin
+  InertPlugin
 ];

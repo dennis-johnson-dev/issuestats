@@ -21,12 +21,16 @@
   "homepage": "https://github.com/songawee/issuestats#readme",
   "dependencies": {
     "chart.js": "^2.1.2",
+    "d3": "^3.5.17",
     "hapi": "^13.3.0",
+    "hapi-io": "0.0.12",
     "immutable": "^3.8.1",
     "inert": "^3.2.1",
     "lodash": "^4.11.1",
     "moment": "^2.13.0",
-    "request": "^2.72.0"
+    "request": "^2.72.0",
+    "socket.io": "^1.4.6",
+    "socket.io-client": "^1.4.6"
   },
   "devDependencies": {
     "babel-cli": "^6.8.0",

@@ -19,8 +19,8 @@ export default [{
    }
 }, {
   method: 'GET',
-   path: '/{owner}/{repo}',
-   handler: getAllIssues
+    path: '/{owner}/{repo}',
+    handler: getAllIssues
 }, {
   method: 'GET',
   path: '/assets/{param*}',
@@ -28,5 +28,21 @@ export default [{
     directory: {
       path: 'build'
     }
+  }
+}, {
+  method: 'GET',
+  path: '/test',
+  handler: (req, reply) => {
+    return reply(
+      `<!DOCTYPE html>
+      <html>
+      <head>
+      </head>
+      <body>
+        <svg class="chart-holder" width="500" height="500"></svg>
+        <script src="/assets/client.js"></script>
+      </body>
+      </html>
+    `);
   }
 }];

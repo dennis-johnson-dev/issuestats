@@ -5,9 +5,27 @@ import Immutable from 'immutable';
 import moment from 'moment';
 import Request from 'request';
 import { getLastPageLink, buildRemaingPageLinks } from '../lib/Utils';
+import SocketIO from 'socket.io';
 
 export const getAllIssues = (req, reply) => {
-  const options = {
+  const io = SocketIO(req.server.listener);
+
+  reply(
+    `<!DOCTYPE html>
+    <html>
+    <head>
+    </head>
+    <body>
+      <svg class="chart-holder" width="500" height="500"></svg>
+      <script src="/assets/client.js"></script>
+    </body>
+    </html>
+  `);
+
+  io.on('connection', (socket) => {
+    console.log('connected');
+
+    const options = {
       headers: {
         "Authorization": `token ${process.env.ISSUE_STATS_TOKEN}`,
         "Accept": "application/vnd.github.v3+json",
@@ -18,7 +36,7 @@ export const getAllIssues = (req, reply) => {
     };
 
     Request(options, (err, res) => {
-      console.log(res.headers);
+      console.log('Remaining requests', res.headers['x-ratelimit-remaining']);
       let lastLinks = [];
       if (res.headers.link) {
         const lastPage = getLastPageLink(res.headers.link);
@@ -30,7 +48,10 @@ export const getAllIssues = (req, reply) => {
             Request(link, (err, resp) => {
               resolve(JSON.parse(resp.body));
             });
-          })
+          }).then((val) => {
+            io.emit('processing', val);
+            return val;
+          });
         })
       ).then((links) => {
         const allRemainingIssues = links.reduce((acc, link) => {
@@ -56,41 +77,27 @@ export const getAllIssues = (req, reply) => {
 
           do {
             if (dates.has(dateIndex.format('YYYY-MM-DD'))) {
-              dates = dates.set(dateIndex.format('YYYY-MM-DD'), dates.get(dateIndex.format('YYYY-MM-DD')).push(allIssues[i].number));
+              dates = dates.set(dateIndex.format('YYYY-MM-DD'),
+                dates.get(dateIndex.format('YYYY-MM-DD')).push(allIssues[i].number)
+              );
             } else {
-              dates = dates.set(dateIndex.format('YYYY-MM-DD'), Immutable.List([allIssues[i].number]));
+              dates = dates.set(dateIndex.format('YYYY-MM-DD'),
+                Immutable.List([allIssues[i].number])
+              );
             }
             dateIndex = moment(dateIndex).add(1, 'day');
           } while (dateIndex.format('YYYY-MM-DD') <= endDate.format('YYYY-MM-DD'))
         }
 
-        let finalResult = dates.map((val, key) => {
+        const finalResult = dates.map((val, key) => {
           return {
             x: key,
             y: val.size
           };
         }).toArray();
 
-        const labels = JSON.stringify(dates.map((val, key) => key).toArray());
-        const data = JSON.stringify(dates.map((val, key) => val.size).toArray());
-
-        reply(
-          `<!DOCTYPE html>
-          <html>
-          <head>
-          </head>
-          <body>
-            <div class="chart">
-              <canvas class="chartHolder" width="400" height="400"></canvas>
-            </div>
-            <script>
-              var data = ${data};
-              var labels = ${labels};
-            </script>
-            <script src="/assets/client.js"></script>
-          </body>
-          </html>
-        `);
+        io.emit('update', finalResult);
       }).catch((e) => console.log(e));
+    });
   });
-}
+};

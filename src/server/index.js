@@ -1,4 +1,5 @@
 import { buildServer } from './server';
+import SocketIO from 'socket.io';
 
 async function start() {
   const server = await buildServer();
