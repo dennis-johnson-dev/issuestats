@@ -41,17 +41,17 @@ export const getAllIssues = (req, reply) => {
           return acc;
         }, []);
 
-        let allIssues = JSON.parse(res.body).concat(allRemainingIssues).filter((innerIssue) => {
+        const allIssues = JSON.parse(res.body).concat(allRemainingIssues).filter((innerIssue) => {
           return typeof innerIssue.pull_request === 'undefined';
         });
 
-        allIssues = _.sortBy(allIssues, (item) => moment(item.created_at).valueOf());
+        const sortedIssues = _.sortBy(allIssues, (item) => moment(item.created_at).valueOf());
         let dates = Immutable.OrderedMap({});
 
-        for (let i = 0; i < allIssues.length; i++) {
-          const createdDate = moment(allIssues[i].created_at);
+        for (let i = 0; i < sortedIssues.length; i++) {
+          const createdDate = moment(sortedIssues[i].created_at);
           const now = moment();
-          const endDate = moment(allIssues[i].closed_at || now);
+          const endDate = moment(sortedIssues[i].closed_at || now);
           let dateIndex = createdDate;
 
           do {
@@ -91,8 +91,6 @@ export const getAllIssues = (req, reply) => {
           </body>
           </html>
         `);
-      })
-      .catch((e) => console.log(e)
-    );
+      }).catch((e) => console.log(e));
   });
 }
