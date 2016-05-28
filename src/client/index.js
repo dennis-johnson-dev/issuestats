@@ -6,10 +6,8 @@ import IOClient from 'socket.io-client';
 import ParseIssues from './utils/ParseIssues';
 import './styles/main.css';
 
-const ioClient = IOClient();
-
 // initial data
-let data = [];
+let data = ParseIssues(issues);
 
 const margin = {top: 30, right: 20, bottom: 30, left: 50},
   width = 640 - margin.left - margin.right,
@@ -57,37 +55,3 @@ svg.append("g")
 svg.append("path")
   .attr("class", "line")
   .attr("d", valueline(data));
-
-const update = (newData) => {
-
-  // Scale the range of the data again
-	x.domain(d3.extent(newData, (d) => d.x));
-  y.domain([0, d3.max(newData, (d) => d.y)]);
-
-  // Select the section we want to apply our changes to
-  const svg = d3.select(".chart-holder").transition();
-
-  // Make the changes
-  svg.select(".line")
-    .attr("d", valueline(newData));
-  // svg.selectAll("dot")
-  //     .data(newData)
-  //   .enter().append("circle")
-  //     .attr("r", 3.5)
-  //     .attr("cx", function(d) { return x(d.x); })
-  //     .attr("cy", function(d) { return y(d.y); });
-  svg.select(".x.axis")
-    .call(xAxis);
-  svg.select(".y.axis")
-    .call(yAxis);
-};
-
-// ioClient.on('update', (msg, foo) => {
-//   console.log('yo');
-//   console.log(msg, foo);
-// });
-
-ioClient.on('firstRequest', (firstIssues) => {
-  data = firstIssues;
-  update(ParseIssues(firstIssues));
-});
