@@ -6,7 +6,7 @@ export default (issues) => {
   const sortedIssues = _.sortBy(issues, (item) => moment(item.created_at).valueOf());
   let dates = {};
 
-  for (let i = 0; i < sortedIssues.length; i++) {
+  for (let i = 0; i < issues.length; i++) {
     const createdDate = moment(sortedIssues[i].created_at);
     const now = moment();
     const endDate = moment(sortedIssues[i].closed_at || now);

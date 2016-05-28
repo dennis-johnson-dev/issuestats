@@ -10,6 +10,7 @@ import SocketIO from 'socket.io';
 export const getAllIssues = (req, reply) => {
   const options = getRequestOptions(req.params.owner, req.params.repo, 0);
   Request(options, (err, res) => {
+    const requestStart = moment();
     if (err) {
       console.log('there was an error contacting github', err);
       return err;
@@ -23,9 +24,6 @@ export const getAllIssues = (req, reply) => {
       const lastPage = getLastPageLink(res.headers.link);
       lastLinks = buildRemaingPageLinks(req.params.owner, req.params.repo, lastPage);
     }
-
-    // first request
-    // io.emit('firstRequest', JSON.parse(res.body));
 
     return Promise.all(
       lastLinks.map((link, i) => {
@@ -47,6 +45,8 @@ export const getAllIssues = (req, reply) => {
 
       issues = JSON.stringify(issues);
 
+      console.log('requests ended', moment().diff(requestStart));
+
       reply(
         `<!DOCTYPE html>
         <html>
@@ -54,7 +54,7 @@ export const getAllIssues = (req, reply) => {
           <title>Issue Stats</title>
         </head>
         <body>
-          <svg class="chart-holder" width="800" height="500"></svg>
+          <svg class="chart-holder" width="1200" height="500"></svg>
           <script>
             var issues = ${issues};
           </script>
