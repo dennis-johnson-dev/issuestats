@@ -8,7 +8,7 @@ export const buildServer = async () => {
   return new Promise((resolve, reject) => {
     const server = new Hapi.Server();
     server.connection({
-      port: 3000
+      port: 3099
     });
 
     server.register(plugins, (error) => {

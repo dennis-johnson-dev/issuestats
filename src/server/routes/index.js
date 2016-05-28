@@ -1,4 +1,4 @@
-import { getAllIssues } from './handlers/Issues';
+import * as Issues from './handlers/Issues';
 
 export default [{
   method: 'GET',
@@ -20,7 +20,7 @@ export default [{
 }, {
   method: 'GET',
     path: '/{owner}/{repo}',
-    handler: getAllIssues
+    handler: Issues.getAllIssues
 }, {
   method: 'GET',
   path: '/assets/{param*}',

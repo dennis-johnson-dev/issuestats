@@ -1,9 +1,15 @@
 import d3 from 'd3';
 import moment from 'moment';
+import _ from 'lodash';
+import Immutable from 'immutable';
+import IOClient from 'socket.io-client';
+import ParseIssues from './utils/ParseIssues';
 import './styles/main.css';
 
-import IOClient from 'socket.io-client';
 const ioClient = IOClient();
+
+// initial data
+let data = [];
 
 const margin = {top: 30, right: 20, bottom: 30, left: 50},
   width = 640 - margin.left - margin.right,
@@ -32,53 +38,56 @@ const svg = d3.select(".chart-holder")
   .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-const data = [];
-
 // Scale the range of the data
 x.domain(d3.extent(data, (d) => d.x));
 y.domain([0, d3.max(data, (d) => d.y)]);
+
+// Add the X Axis
+svg.append("g")
+.attr("class", "x axis")
+.attr("transform", "translate(0," + height + ")")
+.call(xAxis);
+
+// Add the Y Axis
+svg.append("g")
+.attr("class", "y axis")
+.call(yAxis);
 
 // Add the valueline path.
 svg.append("path")
   .attr("class", "line")
   .attr("d", valueline(data));
 
-// Add the X Axis
-svg.append("g")
-  .attr("class", "x axis")
-  .attr("transform", "translate(0," + height + ")")
-  .call(xAxis);
-
-// Add the Y Axis
-svg.append("g")
-  .attr("class", "y axis")
-  .call(yAxis);
-
 const update = (newData) => {
-	// Scale the range of the data again
+
+  // Scale the range of the data again
 	x.domain(d3.extent(newData, (d) => d.x));
   y.domain([0, d3.max(newData, (d) => d.y)]);
+
   // Select the section we want to apply our changes to
   const svg = d3.select(".chart-holder").transition();
+
   // Make the changes
-  svg.select(".line")   // change the line
-    .duration(750)
+  svg.select(".line")
     .attr("d", valueline(newData));
-  svg.select(".x.axis") // change the x axis
-    .duration(750)
+  // svg.selectAll("dot")
+  //     .data(newData)
+  //   .enter().append("circle")
+  //     .attr("r", 3.5)
+  //     .attr("cx", function(d) { return x(d.x); })
+  //     .attr("cy", function(d) { return y(d.y); });
+  svg.select(".x.axis")
     .call(xAxis);
-  svg.select(".y.axis") // change the y axis
-    .duration(750)
+  svg.select(".y.axis")
     .call(yAxis);
 };
 
-ioClient.on('update', (newData) => {
-  update(newData.map((datum) => {
-    datum.x = moment(datum.x).toDate();
-    return datum;
-  }));
-});
+// ioClient.on('update', (msg, foo) => {
+//   console.log('yo');
+//   console.log(msg, foo);
+// });
 
-ioClient.on('processing', (processedData) => {
-  console.log('another item logged');
+ioClient.on('firstRequest', (firstIssues) => {
+  data = firstIssues;
+  update(ParseIssues(firstIssues));
 });
